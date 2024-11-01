@@ -4,12 +4,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PhoneController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
+Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -20,7 +19,10 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::resource('phones', PhoneController::class)
-    ->only(['index', 'store','create'])
+    ->only(['index', 'store','create','destroy'])
     ->middleware(['auth', 'verified']);
+
+Route::get('phones/export', [PhoneController::class, 'export']);
+
 
 require __DIR__.'/auth.php';

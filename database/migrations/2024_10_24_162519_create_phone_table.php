@@ -14,10 +14,12 @@ return new class extends Migration
         Schema::create('phone', function (Blueprint $table) {
             $table->id();
             $table->string('note');
-            $table->string('file_url');
-            $table->integer('new_black_list');
-            $table->integer('errors');
+            $table->string('file_url')->default('');
+            $table->string('file_name')->default('');
+            $table->integer('new_black_list')->default(0);
+            $table->integer('errors')->default(0);
             $table->timestamps();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });
     }
 
