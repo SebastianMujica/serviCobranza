@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'phones' => 'Teléfonos',
+    'phones' => 'ProcesarTeléfonos',
     'Are you sure you want to delete your file?' => '¿Está seguro de que desea eliminar su archivo?',
     'delete' => 'eliminar',
     'delete_file' => 'eliminar',
@@ -26,4 +26,5 @@ return [
     'chose_file' => 'Elegir archivo',
     'no_file_chosen' => 'Ningún archivo elegido',
     'observations' => 'Observaciones',
+    'phones_database'=> 'Maestro de Teléfonos',
 ];

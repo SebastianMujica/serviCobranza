@@ -24,5 +24,8 @@ Route::resource('phones', PhoneController::class)
 
 Route::get('phones/export', [PhoneController::class, 'export']);
 
+Route::resource('phones-database', PhoneController::class)
+    ->only(['index'])
+    ->middleware(['auth', 'verified']);
 
-require __DIR__.'/auth.php';
+    require __DIR__.'/auth.php';

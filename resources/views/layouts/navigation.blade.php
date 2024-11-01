@@ -19,6 +19,9 @@
                 <x-nav-link :href="route('phones.index')" :active="request()->routeIs('phones.index')">
                     {{ __('phones.phones') }}
                 </x-nav-link>
+                <x-nav-link :href="route('phones-database.index')" :active="request()->routeIs('phones-database.index')">
+                    {{ __('phones.phones_database') }}
+                </x-nav-link>
             </div>
 
             <!-- Settings Dropdown -->

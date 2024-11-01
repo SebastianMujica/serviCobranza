@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'phones' => 'Phones',
+    'phones' => 'Process phones',
     'Are you sure you want to delete your file?'=> 'Are you sure you want to delete your file?',
     'delete' => 'delete',
     'delete_file'=> 'delete',
