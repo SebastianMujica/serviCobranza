@@ -27,4 +27,6 @@ return [
     'no_file_chosen' => 'Ningún archivo elegido',
     'observations' => 'Observaciones',
     'phones_database'=> 'Maestro de Teléfonos',
+    'import_database'=> 'Importar Base de datos',
+    'import_database_explanation'=> 'Importa la base de datos inicial desde un archivo excel .xls o .xlsx',
 ];

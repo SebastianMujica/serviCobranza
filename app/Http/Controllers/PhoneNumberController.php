@@ -1,18 +1,22 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Imports\PhoneNumberImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Log;
 use App\Models\PhoneNumber;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 
 class PhoneNumberController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
-        //
+        return view("phones-database.index");
     }
 
     /**
@@ -61,5 +65,19 @@ class PhoneNumberController extends Controller
     public function destroy(PhoneNumber $phoneNumber)
     {
         //
+    }
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'file_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+        
+        ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+        Excel::import(new PhoneNumberImport(), $request->file('file_upload'));
+
+        return redirect()->back()->with('status', 'import-success');
     }
 }

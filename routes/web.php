@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PhoneController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PhoneNumberController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,8 +25,10 @@ Route::resource('phones', PhoneController::class)
 
 Route::get('phones/export', [PhoneController::class, 'export']);
 
-Route::resource('phones-database', PhoneController::class)
-    ->only(['index'])
+Route::post('phones-database/import', [PhoneNumberController::class, 'import']);
+
+Route::resource('phones-database', PhoneNumberController::class)
+    ->only(['index','import'])
     ->middleware(['auth', 'verified']);
 
     require __DIR__.'/auth.php';

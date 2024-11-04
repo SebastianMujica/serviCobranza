@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('phone_numbers', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->string('sheet');
-            $table->string('number');
-            $table->string('code');
+            $table->string('rut')->default('');
+            $table->string('dv')->default('');
+            $table->string('area')->default('');
+            $table->string('number')->default('');
         });
     }
 
