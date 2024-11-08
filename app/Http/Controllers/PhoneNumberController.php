@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Log;
 use App\Models\PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use RealRashid\SweetAlert\Facades\Alert;
 
 
 class PhoneNumberController extends Controller
@@ -77,7 +78,6 @@ class PhoneNumberController extends Controller
         
         ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         Excel::import(new PhoneNumberImport(), $request->file('file_upload'));
-
         return redirect()->back()->with('status', 'import-success');
     }
 }

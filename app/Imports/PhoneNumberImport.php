@@ -15,8 +15,8 @@ class PhoneNumberImport implements ToCollection
             PhoneNumber::create([
                 "rut" => $row[0],
                 "dv" => $row[1],
-                "area" => $row[3],
-                "number "=> $row[3],
+                "area" => $row[2],
+                "number"=> $row[3],
             ]);
         }
     }
