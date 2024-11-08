@@ -45,14 +45,54 @@
                                     </div>
                                 </div>
                                 <x-primary-button class="mt-4 bg-primary">
-                                    <svg class="mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
                                     {{ __('phones.upload') }}
                                 </x-primary-button>
                             </form>
                         </section>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-10 flex flex-col">
+            <div class="-my-2 -mx-4 sm:mx-6 lg:-mx-8 overflow-x-auto">
+                <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+                    <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                        <table class="table w-full divide-y divide-gray-300">
+                            <thead class="bg-gray-350">
+                                <tr>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900" >id</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">rut</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">dv</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">area</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">phone</th>
+                                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse ( $phoneNumbers as $phoneNumber )
+                                <tr>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"> {{ $phoneNumber->id}}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"> {{ $phoneNumber->rut}}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"> {{ $phoneNumber->dv}}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"> {{ $phoneNumber->area}}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500"> {{ $phoneNumber->number}}</td>
+                                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                    <form action="" method="POST">
+                                        <a href="">show</a>
+                                        <a href="">edit</a>
+                                        <button class="btn btn-danger">delete</button>
+                                    </form>
+                                </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td> no hay datos </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                        <div> {{ $phoneNumbers->links()}}</div>
                     </div>
                 </div>
             </div>

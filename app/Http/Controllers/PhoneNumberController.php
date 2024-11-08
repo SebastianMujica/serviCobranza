@@ -17,7 +17,8 @@ class PhoneNumberController extends Controller
      */
     public function index(): View
     {
-        return view("phones-database.index");
+        $phoneNumbers = PhoneNumber::paginate(20);
+        return view("phones-database.index", compact('phoneNumbers'));
     }
 
     /**
@@ -75,7 +76,6 @@ class PhoneNumberController extends Controller
                 'file'
             ],
         ]);
-        
         ini_set('max_execution_time', 300); //300 seconds = 5 minutes
         Excel::import(new PhoneNumberImport(), $request->file('file_upload'));
         return redirect()->back()->with('status', 'import-success');

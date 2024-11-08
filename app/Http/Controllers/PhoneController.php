@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\PhoneNumberImport;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -11,14 +12,14 @@ use Illuminate\Support\Facades\Storage;
 use App\Exports\PhonesExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-
+use App\Models\PhoneNumber;
 
 class PhoneController extends Controller
 {
     public function store(Request $request): RedirectResponse
     {
 
-
+        $blackList = [];
         // // Store the file in storage\app\public folder
          $file = $request->file('file_upload');
          $fileName = $file->getClientOriginalName();
@@ -33,6 +34,22 @@ class PhoneController extends Controller
         $validated = $request->validate([
             'note' => 'required|string|max:255',
         ]);
+
+        $data = Excel::toArray(new PhoneNumberImport,$filePath);
+
+        foreach ($data as $sheetNumber => $sheetData) {
+            foreach ($sheetData as $row => $value) {
+             if (preg_match("/^\d{8}_\d{9}$/", $value[0])) {
+                $reg = [];
+                array_push($blackList, explode('_',$value[0]));
+                }
+            }
+        }
+
+        
+        $phonesOnDb = PhoneNumber::all();
+
+        dd($phonesOnDb);
 
         $phone = Phone::create([
             'note' => $request->input('note'),
