@@ -17,7 +17,7 @@ class PhoneNumberController extends Controller
      */
     public function index(): View
     {
-        $phoneNumbers = PhoneNumber::paginate(20);
+        $phoneNumbers = PhoneNumber::paginate(10);
         return view("phones-database.index", compact('phoneNumbers'));
     }
 
@@ -70,14 +70,19 @@ class PhoneNumberController extends Controller
     }
     public function import(Request $request) 
     {
+
+
         $request->validate([
             'file_upload' => [
                 'required',
                 'file'
             ],
         ]);
-        ini_set('max_execution_time', 300); //300 seconds = 5 minutes
+
+        ini_set('max_execution_time',500); 
+
         Excel::import(new PhoneNumberImport(), $request->file('file_upload'));
-        return redirect()->back()->with('status', 'import-success');
+        
+        return response()->json(['success' => 'You have successfully upload file.']);
     }
 }

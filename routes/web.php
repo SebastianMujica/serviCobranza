@@ -15,6 +15,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('/download/{file_name}', [PhoneController::class, 'download']);
+});
+
 Route::resource('phones', PhoneController::class)
     ->only(['index', 'store','create','destroy'])
     ->middleware(['auth', 'verified']);

@@ -26,6 +26,10 @@
                             <small class="ml-2 text-sm text-gray-600">{{ $phone->created_at->format('j M Y, g:i a') }}</small>
                         </div>
                     </div>
+                    
+                    <a href="{{ '/download/'.$phone->file_name }}" class="text-indigo-600 hover:text-indigo-900">
+                        {{ __('phones.download_file') }}
+                    </a>
                     <p class="mt-4 text-lg text-gray-900">{{ $phone->note }}</p>
                     <div class="max-w-xl">
                         @include('phones.partials.delete-file-form')

@@ -17,7 +17,7 @@
     </ul>
 </div>
 @endif
-    <form action="{{ route('phones.index') }}" method="POST" enctype="multipart/form-data">
+    <form id='import' action="{{ route('phones.index') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
           <input type="file" id="file-upload" name="file_upload" style="display: none;">
@@ -37,6 +37,69 @@
         <x-primary-button class="mt-4 bg-primary">{{ __('phones.upload') }}</x-primary-button>
     </form>
 </section>
+        <!-- Modal -->
+        <div id="myModal" class="modal">
+            <div class="modal-content">
+                <h2>Importando la Data</h2>
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="4" fill="none">
+                        <animate attributeName="stroke-dasharray" from="0 251.33" to="251.33 0" dur="1s"
+                            repeatCount="indefinite" />
+                    </circle>
+                </svg>
+                <p> cargando ..</p>
+            </div>
+        </div>
+<style>
+    /* Modal styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        position: relative;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .close-modal {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+</style>
+<script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
 
 <script>
     
@@ -51,4 +114,32 @@
             document.getElementById('selected-file-name').textContent = "{{ __('phones.no_file_chosen') }}";
         }
     });
+
+    $(function() {
+        $(document).ready(function() {
+            $('#import').ajaxForm({
+                beforeSend: function() {
+                    modal.style.display = "block";
+                    $('#progressBar').val(0)
+                },
+                uploadProgress: function(event, position, total, percentComplete) {
+                    $('#progressBar').val(percentComplete); // Update progress bar value
+                },
+                complete: function(xhr) {
+                    modal.style.display = "none";
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Éxito!',
+                        text: '¡La operación se ha completado con éxito!',
+                        confirmButtonColor: '#3085d6',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+            });
+        });
+    });
+
+    var modal = document.getElementById("myModal");
+
+
 </script>
