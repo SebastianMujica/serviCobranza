@@ -13,22 +13,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-Route::middleware('auth')->group(function () {
+    Route::get('/progress', [PhoneController::class, 'progress']);
     Route::get('/download/{file_name}', [PhoneController::class, 'download']);
-});
-
-Route::resource('phones', PhoneController::class)
+    Route::get('phones/export', [PhoneController::class, 'export']);
+    Route::post('phones-database/import', [PhoneNumberController::class, 'import']);
+    Route::resource('phones', PhoneController::class)
     ->only(['index', 'store','create','destroy'])
     ->middleware(['auth', 'verified']);
-
-Route::get('phones/export', [PhoneController::class, 'export']);
-
-Route::post('phones-database/import', [PhoneNumberController::class, 'import']);
-
-Route::resource('phones-database', PhoneNumberController::class)
+    Route::resource('phones-database', PhoneNumberController::class)
     ->only(['index','import'])
     ->middleware(['auth', 'verified']);
+    Route::get('/batch/{batchId}', [PhoneController::class , 'batch'])->name('batch');
+});
+
+
 
     require __DIR__.'/auth.php';

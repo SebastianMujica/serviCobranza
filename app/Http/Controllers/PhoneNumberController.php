@@ -79,9 +79,9 @@ class PhoneNumberController extends Controller
             ],
         ]);
 
-        ini_set('max_execution_time',500); 
+        ini_set('max_execution_time',800); 
 
-        Excel::import(new PhoneNumberImport(), $request->file('file_upload'));
+        Excel::import(new PhoneNumberImport(), $request->file('file_upload'))   ;
         
         return response()->json(['success' => 'You have successfully upload file.']);
     }

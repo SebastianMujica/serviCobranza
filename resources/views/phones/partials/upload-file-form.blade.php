@@ -1,6 +1,8 @@
 <section>
     <header>
+
         <h2 class="text-lg font-medium text-gray-900">
+
             {{ __('phones.please') }}
         </h2>
 
@@ -36,6 +38,12 @@
     >{{ old('note') }}</textarea>
         <x-primary-button class="mt-4 bg-primary">{{ __('phones.upload') }}</x-primary-button>
     </form>
+    @if (session('id'))
+        <input type="hidden" value="{{ session('id') }}">
+     @endif
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
 </section>
         <!-- Modal -->
         <div id="myModal" class="modal">
@@ -47,6 +55,7 @@
                             repeatCount="indefinite" />
                     </circle>
                 </svg>
+
                 <p> cargando ..</p>
             </div>
         </div>
@@ -114,18 +123,26 @@
             document.getElementById('selected-file-name').textContent = "{{ __('phones.no_file_chosen') }}";
         }
     });
-
-    $(function() {
+$(function() {
+        var completed = true;
+        var modal = document.getElementById("myModal");
+        function showModal() {
+            const showModalEvent = new CustomEvent('myModalShown');
+            document.getElementById("myModal").dispatchEvent(showModalEvent);
+            modal.style.display = "block";
+        }
         $(document).ready(function() {
             $('#import').ajaxForm({
                 beforeSend: function() {
+                    completed = false
+                    //showModal();
                     modal.style.display = "block";
-                    $('#progressBar').val(0)
                 },
                 uploadProgress: function(event, position, total, percentComplete) {
-                    $('#progressBar').val(percentComplete); // Update progress bar value
+
                 },
                 complete: function(xhr) {
+                    completed = true;
                     modal.style.display = "none";
                     Swal.fire({
                         icon: 'success',
@@ -135,11 +152,59 @@
                         confirmButtonText: 'Aceptar'
                     });
                 }
-            });
-        });
+            });         
     });
+    function delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
-    var modal = document.getElementById("myModal");
+    document.getElementById("myModal").addEventListener('myModalShown', async function() {
+        while (!completed) {
+            $.ajax({
+            url: '/progress', // Replace with your endpoint URL
+            type: 'GET',  // Or 'POST' as needed
+            success: function(response) {
+                console.log('AJAX request success:', response);
+//
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX request error:', error);
+                completed = true;
+            }
+        });
+        await delay(1000);
+        } 
+    });
+    
+    function updateProgressBar(progress , finishedAt) {
+                // $('.progress-bar').html(progress+'%')
+                // $('.progress-bar').css('width', progress + '%');
 
+                if (progress === 100) {
+                    console.log('finishedAt = ', finishedAt)
+                   // $('.finishedAt').html(finishedAt);
+                    return;
+                }
+
+                // Set up a timeout to periodically fetch progress
+                setTimeout(fetchProgress, 1000);
+            }
+                // AJAX request to fetch progress
+                function fetchProgress() {
+                let id = $('input').val();
+                $.ajax({
+                    url: "{{ route('batch', '') }}" + "/"+id,
+                    type: 'GET',
+                    datatype: "json",
+                    success: function (data) {
+                        console.log(data)
+                        updateProgressBar(data.progress , data.finishedAt);
+                        // $('.createdAt').html(data.createdAt);
+                    }
+                });
+            }
+                        // Start fetching progress
+    fetchProgress();
+});
 
 </script>
