@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Illuminate\Support\Facades\Bus;
 use App\Jobs\ProccessPhones;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class PhoneController extends Controller
 {   
@@ -23,6 +24,7 @@ class PhoneController extends Controller
     {
         ini_set('max_execution_time',800); 
         $blackList = [];
+        $invalidos = [];
 
         $validated = $request->validate([
             'note' => 'required|string|max:255',
@@ -40,25 +42,28 @@ class PhoneController extends Controller
             for ($i=0; $i < count($contents); $i++) { 
                 $line = $contents[$i];
                 $line = trim($line);
-                    if (preg_match('/^\d{7,8}_\d{9}$/', $line)) {
+                    if (preg_match('/^\d{1,9}_\d{6,9}$/', $line)) {
                         $rutNumberArray= explode('_',$line);
                         $numberComplete= $rutNumberArray[1];
 
-                        if (preg_match('/^(9|75|73|72|71|67|65|64|63|61|58|57|55|53|52|51|43|42|41|34|32|2)(\d{8})$/', $numberComplete, $matches)) {
-                            $area = $matches[1];
-                            $numero = $matches[2];                    
+ //                       if (preg_match('/^(9|75|73|72|71|67|65|64|63|61|58|57|55|53|52|51|43|42|41|34|32|2)(\d{6,8})$/', $numberComplete, $matches)) {
+                        if (preg_match('/(\d{6,9})/', $numberComplete, $matches)) {
+                            if (isset($matches[0])){
+                                array_push($blackList,$matches[0]);
+                            }                                           
+                        }else{
+//                            array_push($invalidos,$matches[0]);
+                            Log::info('Error en el numero '.$line);    
                         }
-
-                        array_push($blackList, explode('_',$line)[1]);
-
-                        $blackList[$i]=['rut'=>$rutNumberArray[0] ,'area'=>$area,'number'=>$numero];
-                        Log::debug('Registro valido '.$blackList[$i]['rut'].' '.$blackList[$i]['area'].' '.$blackList[$i]['number'] );
+                        // Log::debug('Registro valido '.$blackList[$i]['rut'].' '.$blackList[$i]['area'].' '.$blackList[$i]['number'] );
                     }else{
                         Log::info('Registro invalido '.$line);
+                        array_push($invalidos,$line);
                     }   
             }
             
-            Log::info(message: count($blackList));
+            Log::info(message: 'validos '.count($blackList));
+            Log::info(message: 'Invalidos '.count($invalidos));
             
             }else{
                 $data = Excel::toArray(new PhoneNumberImport,$filePath);

@@ -8,6 +8,7 @@ use App\Models\PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Auth;
 
 
 class PhoneNumberController extends Controller
@@ -71,6 +72,7 @@ class PhoneNumberController extends Controller
     public function import(Request $request) 
     {
 
+        $user = Auth::user();
 
         $request->validate([
             'file_upload' => [
@@ -81,8 +83,11 @@ class PhoneNumberController extends Controller
 
         ini_set('max_execution_time',800); 
 
-        Excel::import(new PhoneNumberImport(), $request->file('file_upload'))   ;
-        
-        return response()->json(['success' => 'You have successfully upload file.']);
+            $importer =new PhoneNumberImport($user);
+            $import = Excel::import($importer, $request->file('file_upload'));
+                        
+            Log::warning('Errores '. json_encode( $importer->errors()) );    
+            
+            return response()->json(['success' => 'You have successfully upload file.']);
     }
 }

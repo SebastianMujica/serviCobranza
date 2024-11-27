@@ -204,7 +204,6 @@ $(function() {
                 });
             }
                         // Start fetching progress
-    fetchProgress();
 });
 
 </script>
