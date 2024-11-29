@@ -35,6 +35,9 @@ class PhoneController extends Controller
         $filePath = $file->store('imported', 'public');
         $extension = $file->getClientOriginalExtension();
 
+        // chunk the file
+        
+
         if ($extension == 'txt') {  
 
             $contents = file($file->getRealPath());
@@ -43,6 +46,7 @@ class PhoneController extends Controller
                 $line = $contents[$i];
                 $line = trim($line);
                     if (preg_match('/^\d{1,9}_\d{6,9}$/', $line)) {
+
                         $rutNumberArray= explode('_',$line);
                         $numberComplete= $rutNumberArray[1];
 
@@ -58,7 +62,7 @@ class PhoneController extends Controller
                         // Log::debug('Registro valido '.$blackList[$i]['rut'].' '.$blackList[$i]['area'].' '.$blackList[$i]['number'] );
                     }else{
                         Log::info('Registro invalido '.$line);
-                        array_push($invalidos,$line);
+                        // array_push($invalidos,$line);
                     }   
             }
             
@@ -76,10 +80,14 @@ class PhoneController extends Controller
                     }
                 }
             }
+        // Crear un índice de búsqueda
+        $index = [];
 
-        
+        foreach ($blackList as $id => $valor) {
+            $index[$valor] = $id;
+        }
 
-        ProccessPhones::dispatch($blackList,  $request->input('note'), auth()->id())->afterCommit();
+        ProccessPhones::dispatch($index,  $request->input('note'), auth()->id(), false)->afterCommit();
 
         // $batch = Bus::batch([])->dispatch()->afterCommit();
         

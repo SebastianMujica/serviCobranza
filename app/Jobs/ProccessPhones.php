@@ -47,14 +47,48 @@ class ProccessPhones implements ShouldQueue
     {
         
 
-        $phonesOnDb = PhoneNumber::select('area','number')->get()->toArray();        
+        // $phonesOnDb = PhoneNumber::select('area','number')->get();  
+        // $phonesIndex = PhoneNumber::pluck('id', 'number');
+
+        $phonesOnDb = DB::table('phone_numbers')->select('id', 'rut','area', 'number')->get()->keyBy('number')->toArray();
+        
+        $phonesOnDbWithCode = DB::table('phone_numbers')->select('id', 'rut','area', 'number', DB::raw("CONCAT(area, number) as full_phone"))->get()->keyBy('full_phone')->toArray();
+
+
+
         $newPhones = [];
 
-        $phonesOnDbWithArea = array_map( function ($phonesOnDb){
-            return $phonesOnDb['area'] . $phonesOnDb['number'];
-        }, $phonesOnDb);
 
         Log::info('Empezando');
+/*
+        $indexPhonesOnDb = array_keys($phonesOnDb);
+        $indexPhonesOnDbWithCode = array_keys($phonesOnDbWithCode);
+        $indexBlacklist = array_keys($this->blackList);
+*/
+        $compareWithoutCode = array_intersect_key($this->blackList, $phonesOnDb);
+        $compareWithCode = array_intersect_key($this->blackList,$phonesOnDbWithCode);
+        
+
+        dump( $compareWithCode );
+        dump($compareWithoutCode);
+
+        dump('encontrados con codigo');
+        foreach ($compareWithCode as $key => $value) {
+            dump($key);
+            dump($value);
+            dump($phonesOnDbWithCode[$key]);
+            array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+        }
+        dump('encontrados sin codigo');
+        foreach ($compareWithoutCode as $key => $value) {
+            dump($key);
+            dump($value);
+            dump($phonesOnDb[$key]);
+            array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+        }
+
+        /*
+
         for ($i=0; $i < count($this->blackList)-1; $i++) { 
             
             if (isset($this->blackList[$i])){
@@ -80,9 +114,9 @@ class ProccessPhones implements ShouldQueue
                     }
                 }
             }
-        }
+        }*/
         // Create a new Excel file with the newPhones array
-        $export = new class($newPhones) implements FromCollection {
+        $export = new class($newPhones) implements FromCollection, WithHeadings {
             protected $newPhonesExp;
 
             public function __construct($newPhones)
@@ -93,6 +127,14 @@ class ProccessPhones implements ShouldQueue
             public function collection()
             {
                 return collect($this->newPhonesExp);
+            }
+            public function headings(): array
+            {
+                return [
+                    'rut',
+                    'codigo',
+                    'numero',
+                ];
             }
         };
 
