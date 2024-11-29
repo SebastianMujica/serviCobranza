@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Bus;
 use App\Jobs\ProccessPhones;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Bus\Batch;
+use Throwable;
 
 class PhoneController extends Controller
 {   
@@ -31,12 +33,10 @@ class PhoneController extends Controller
         ]);
 
         $file = $request->file('file_upload');
-        $fileName = $file->getClientOriginalName();
         $filePath = $file->store('imported', 'public');
         $extension = $file->getClientOriginalExtension();
 
-        // chunk the file
-        
+
 
         if ($extension == 'txt') {  
 
@@ -57,24 +57,23 @@ class PhoneController extends Controller
                             }                                           
                         }else{
 //                            array_push($invalidos,$matches[0]);
-                            Log::info('Error en el numero '.$line);    
+                            // Log::info('Error en el numero '.$line);    
                         }
                         // Log::debug('Registro valido '.$blackList[$i]['rut'].' '.$blackList[$i]['area'].' '.$blackList[$i]['number'] );
                     }else{
-                        Log::info('Registro invalido '.$line);
+                        // Log::info('Registro invalido '.$line);
                         // array_push($invalidos,$line);
                     }   
             }
             
-            Log::info(message: 'validos '.count($blackList));
-            Log::info(message: 'Invalidos '.count($invalidos));
+            Log::info(message: 'telefonos validos '.count($blackList));
+            Log::info(message: 'telefonos invalidos '.count($invalidos));
             
             }else{
                 $data = Excel::toArray(new PhoneNumberImport,$filePath);
                 foreach ($data as $sheetNumber => $sheetData) {
                     foreach ($sheetData as $row => $value) {
                         if (preg_match('/^\d{7,8}_\d{9}$/', $value[0])) {
-
                             array_push($blackList, explode('_',$value[0])[1]);
                         }
                     }
@@ -82,20 +81,43 @@ class PhoneController extends Controller
             }
         // Crear un índice de búsqueda
         $index = [];
-
         foreach ($blackList as $id => $valor) {
             $index[$valor] = $id;
         }
+        $phone = Phone::create([
+            'note' =>$request->input('note'),
+            'file_url' =>'no assignado',
+            'file_name' =>'no asignado' ,
+            'new_black_list'=>0,
+            'status'=> 'processing',
+            'errors'=>count($invalidos),
+            'total'=>count($blackList)+count($invalidos),
+            'total_phones_processed'=>0,
+            'user_id' =>auth()->id()
+        ]);
 
-        ProccessPhones::dispatch($index,  $request->input('note'), auth()->id(), false)->afterCommit();
+        ProccessPhones::dispatch($index,  $request->input('note'), auth()->id(), $phone);
 
         // $batch = Bus::batch([])->dispatch()->afterCommit();
         
         // $batch->add(new ProccessPhones(       $blackList,  $request->input('note'), auth()->id()));    
         
 
-        // $id = $batch->id;
+        // $id = $batc
         
+        /*
+        $batch = Bus::batch([
+            new ProccessPhones($blackList,$request->input('note'), auth()->id())
+        ])->then(function (Batch $batch) {
+            // All jobs completed successfully...
+        })->catch(function (Batch $batch, Throwable $e) {
+            // First batch job failure detected...
+        })->finally(function (Batch $batch) {
+            // The batch has finished executing...
+        })->dispatch();
+        */
+
+
         return redirect()->route('phones.index');
     }
     public function index(): View

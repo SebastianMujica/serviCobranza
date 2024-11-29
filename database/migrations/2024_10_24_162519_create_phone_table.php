@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('file_url')->default('');
             $table->string('file_name')->default('');
             $table->integer('new_black_list')->default(0);
+            $table->string('status')->default('processing');
             $table->integer('errors')->default(0);
+            $table->integer('total_phones_proccessed')->default(0);
+            $table->integer('total')->default(0);
             $table->timestamps();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
         });

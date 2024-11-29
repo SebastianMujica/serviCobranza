@@ -27,16 +27,17 @@ class ProccessPhones implements ShouldQueue
     public $note;
     public $userId;
 
-    public $useSql;
+    public $phone;
     /**
      * Create a new job instance.
      */
-    public function __construct($blackList,$note, $userId, $useSql = true )
+    public function __construct($blackList,$note, $userId, $phone )
     {
         $this->blackList = $blackList;
         $this->note = $note;
         $this->userId = $userId;
-        $this->useSql = $useSql;
+        $this->phone = $phone;
+        
 
     }
 
@@ -46,12 +47,9 @@ class ProccessPhones implements ShouldQueue
     public function handle(): void
     {
         
+        // TODO lograr hacer todo con una sola consulta
 
-        // $phonesOnDb = PhoneNumber::select('area','number')->get();  
-        // $phonesIndex = PhoneNumber::pluck('id', 'number');
-
-        $phonesOnDb = DB::table('phone_numbers')->select('id', 'rut','area', 'number')->get()->keyBy('number')->toArray();
-        
+        $phonesOnDb = DB::table('phone_numbers')->select('id', 'rut','area', 'number')->get()->keyBy('number')->toArray();       
         $phonesOnDbWithCode = DB::table('phone_numbers')->select('id', 'rut','area', 'number', DB::raw("CONCAT(area, number) as full_phone"))->get()->keyBy('full_phone')->toArray();
 
 
@@ -60,61 +58,30 @@ class ProccessPhones implements ShouldQueue
 
 
         Log::info('Empezando');
-/*
-        $indexPhonesOnDb = array_keys($phonesOnDb);
-        $indexPhonesOnDbWithCode = array_keys($phonesOnDbWithCode);
-        $indexBlacklist = array_keys($this->blackList);
-*/
+
         $compareWithoutCode = array_intersect_key($this->blackList, $phonesOnDb);
         $compareWithCode = array_intersect_key($this->blackList,$phonesOnDbWithCode);
         
 
-        dump( $compareWithCode );
-        dump($compareWithoutCode);
+        // dump( $compareWithCode );
+        // dump($compareWithoutCode);
 
-        dump('encontrados con codigo');
+        // dump('encontrados con codigo');
         foreach ($compareWithCode as $key => $value) {
-            dump($key);
-            dump($value);
-            dump($phonesOnDbWithCode[$key]);
+            // dump($key);
+            // dump($value);
+            // dump($phonesOnDbWithCode[$key]);
             array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
         }
-        dump('encontrados sin codigo');
+        // dump('encontrados sin codigo');
         foreach ($compareWithoutCode as $key => $value) {
-            dump($key);
-            dump($value);
-            dump($phonesOnDb[$key]);
+            // dump($key);
+            // dump($value);
+            // dump($phonesOnDb[$key]);
             array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
         }
-
-        /*
-
-        for ($i=0; $i < count($this->blackList)-1; $i++) { 
-            
-            if (isset($this->blackList[$i])){
-
-                Log::debug(json_encode($this->blackList[$i]));
-
-                $aguja = $this->blackList[$i];
-                
-                if ($this->useSql == true){
-                    Log::debug('usando sql');
-
-                    $sql = "SELECT * FROM phone_numbers where number = $aguja or concat(area,number) = $aguja ;";
-                    $check = DB::select($sql);
-                    Log::debug($sql);
-
-                    if (count($check)>0){
-                        $newPhones[$i] = $this->blackList[$i];
-                    }
-
-                }else{
-                    if (!in_array($aguja, $phonesOnDbWithArea)) { 
-                        $newPhones[$i] = $this->blackList[$i];
-                    }
-                }
-            }
-        }*/
+        Log::info('Coincidencias encontradas'.count($newPhones));
+        Log::info('Finalizado');
         // Create a new Excel file with the newPhones array
         $export = new class($newPhones) implements FromCollection, WithHeadings {
             protected $newPhonesExp;
@@ -142,14 +109,12 @@ class ProccessPhones implements ShouldQueue
         $newPhonesFilePath = 'new_phones_' . time() . '.xlsx';
         
         Excel::store($export, $newPhonesFilePath, 'public');   
-        // Return the full path to the stored file        
-        $phone = Phone::create([
-            'note' =>$this->note,
-            'file_url' =>$newPhonesFilePath,
-            'file_name' =>explode('/',$newPhonesFilePath)[0] ,
-            'new_black_list'=>count($newPhones),
-            'errors'=>0,
-            'user_id' => $this->userId
-        ]);
+        // Return the full path to the stored file 
+        $this->phone->file_url = $newPhonesFilePath;
+        $this->phone->file_name = explode('/',$newPhonesFilePath)[0];
+        $this->phone->new_black_list = count($newPhones);
+        $this->phone->status = 'completed';
+        $this->phone->total_phones_processed = count($this->blackList);
+        $this->phone->save();
     }
 }

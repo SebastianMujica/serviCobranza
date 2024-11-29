@@ -45,70 +45,9 @@
         <div id="progress-bar"></div>
     </div>
 </section>
-        <!-- Modal -->
-        <div id="myModal" class="modal">
-            <div class="modal-content">
-                <h2>Importando la Data</h2>
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="40" stroke="#4CAF50" stroke-width="4" fill="none">
-                        <animate attributeName="stroke-dasharray" from="0 251.33" to="251.33 0" dur="1s"
-                            repeatCount="indefinite" />
-                    </circle>
-                </svg>
 
-                <p> cargando ..</p>
-            </div>
-        </div>
-<style>
-    /* Modal styles */
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0, 0, 0, 0.4);
-    }
-
-    .modal-content {
-        background-color: #fefefe;
-        margin: 10% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 30%;
-        position: relative;
-    }
-
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-
-    .close:hover,
-    .close:focus {
-        color: black;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .close-modal {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-</style>
 <script src="{{ asset('vendor/sweetalert/sweetalert.all.js') }}"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"></script>
+
 
 <script>
     
@@ -123,87 +62,21 @@
             document.getElementById('selected-file-name').textContent = "{{ __('phones.no_file_chosen') }}";
         }
     });
-$(function() {
-        var completed = true;
-        var modal = document.getElementById("myModal");
-        function showModal() {
-            const showModalEvent = new CustomEvent('myModalShown');
-            document.getElementById("myModal").dispatchEvent(showModalEvent);
-            modal.style.display = "block";
-        }
-        $(document).ready(function() {
-            $('#import').ajaxForm({
-                beforeSend: function() {
-                    completed = false
-                    //showModal();
-                    modal.style.display = "block";
-                },
-                uploadProgress: function(event, position, total, percentComplete) {
+    const formulario = document.getElementById('import');
+    const mensaje = document.getElementById('mensajeProcesando');
 
-                },
-                complete: function(xhr) {
-                    completed = true;
-                    modal.style.display = "none";
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Éxito!',
-                        text: '¡La operación se ha completado con éxito!',
-                        confirmButtonColor: '#3085d6',
-                        confirmButtonText: 'Aceptar'
-                    });
-                }
-            });         
-    });
-    function delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    document.getElementById("myModal").addEventListener('myModalShown', async function() {
-        while (!completed) {
-            $.ajax({
-            url: '/progress', // Replace with your endpoint URL
-            type: 'GET',  // Or 'POST' as needed
-            success: function(response) {
-                console.log('AJAX request success:', response);
-//
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX request error:', error);
-                completed = true;
-            }
-        });
-        await delay(1000);
-        } 
+    formulario.addEventListener('submit', function () {
+        Swal.fire({  
+            title: "Procesando",
+            text: "Por favor, espere un momento",
+            icon: "info",
+            showConfirmButton: false, // Oculta el botón
+            closeOnEsc: false,
+            closeOnClickOutside: false,
+            onOpen: () => {
+                Swal.showLoading();
+                 }
+            });    
     });
     
-    function updateProgressBar(progress , finishedAt) {
-                // $('.progress-bar').html(progress+'%')
-                // $('.progress-bar').css('width', progress + '%');
-
-                if (progress === 100) {
-                    console.log('finishedAt = ', finishedAt)
-                   // $('.finishedAt').html(finishedAt);
-                    return;
-                }
-
-                // Set up a timeout to periodically fetch progress
-                setTimeout(fetchProgress, 1000);
-            }
-                // AJAX request to fetch progress
-                function fetchProgress() {
-                let id = $('input').val();
-                $.ajax({
-                    url: "{{ route('batch', '') }}" + "/"+id,
-                    type: 'GET',
-                    datatype: "json",
-                    success: function (data) {
-                        console.log(data)
-                        updateProgressBar(data.progress , data.finishedAt);
-                        // $('.createdAt').html(data.createdAt);
-                    }
-                });
-            }
-                        // Start fetching progress
-});
-
 </script>

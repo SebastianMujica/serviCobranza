@@ -15,7 +15,10 @@ class Phone extends Model
         'file_url',
         'file_name',
         'new_black_list',
+        'status',
         'errors',
+        'total_phones_proccessed',
+        'total',
         'user_id',
     ];
     protected $table = 'phone';
