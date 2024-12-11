@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('rut');
             $table->string('dv');
             $table->string('area');
-            $table->string('number')->unique();
+            $table->string('number');
+            $table->unique(['rut','number']);
         });
     }
 

@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'phones' => 'ProcesarTeléfonos',
+    'phones' => 'Generar archivo de exclusion',
     'Are you sure you want to delete your file?' => '¿Está seguro de que desea eliminar su archivo?',
     'delete' => 'eliminar',
     'delete_file' => 'eliminar',
@@ -21,12 +21,15 @@ return [
     'cancel' => 'cancelar',
     'download_file' => 'descargar su archivo',
     'please' => 'Por favor, cargue el archivo',
-    'process' => 'Procesa un archivo .xls o .txt comprueba los nuevos teléfonos y genera una nueva lista negra',
+    'process' => 'Procesa un archivo .xls o .txt comprueba los nuevos teléfonos y genera un archivo de exclusion',
     'upload' => 'Subir',
     'chose_file' => 'Elegir archivo',
     'no_file_chosen' => 'Ningún archivo elegido',
     'observations' => 'Observaciones',
-    'phones_database'=> 'Maestro de Teléfonos',
+    'phones_database'=> 'Base de de Teléfonos',
+    'phones_database_list'=> 'Listado de Teléfonos',
+    'phones_database_import'=> 'Importar nuevos Teléfonos',
     'import_database'=> 'Importar Base de datos',
     'import_database_explanation'=> 'Importa la base de datos inicial desde un archivo excel .xls o .xlsx',
+
 ];

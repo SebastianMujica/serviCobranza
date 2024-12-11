@@ -23,6 +23,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('phones-database', PhoneNumberController::class)
     ->only(['index','import'])
     ->middleware(['auth', 'verified']);
+    Route::get('/phones-database/create', [PhoneNumberController::class , 'create'])->name('database.create');
     Route::get('/batch/{batchId}', [PhoneController::class , 'batch'])->name('batch');
 });
 

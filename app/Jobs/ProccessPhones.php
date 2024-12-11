@@ -49,36 +49,42 @@ class ProccessPhones implements ShouldQueue
         
         // TODO lograr hacer todo con una sola consulta
 
-        $phonesOnDb = DB::table('phone_numbers')->select('id', 'rut','area', 'number')->get()->keyBy('number')->toArray();       
-        $phonesOnDbWithCode = DB::table('phone_numbers')->select('id', 'rut','area', 'number', DB::raw("CONCAT(area, number) as full_phone"))->get()->keyBy('full_phone')->toArray();
+        $phonesOnDb = DB::table('phone_numbers')->select('id', 'rut','area', 'number')->get()->groupBy('number')->toArray();       
+        
+        $phonesOnDbWithCode = DB::table('phone_numbers')->select('id', 'rut','area', 'number', DB::raw("CONCAT(area, number) as full_phone"))->get()->groupBy('full_phone')->toArray();
 
 
 
         $newPhones = [];
 
+        // dump($phonesOnDb);
 
         Log::info('Empezando');
 
         $compareWithoutCode = array_intersect_key($this->blackList, $phonesOnDb);
         $compareWithCode = array_intersect_key($this->blackList,$phonesOnDbWithCode);
-        
-
-        // dump( $compareWithCode );
-        // dump($compareWithoutCode);
-
+ 
         // dump('encontrados con codigo');
         foreach ($compareWithCode as $key => $value) {
             // dump($key);
             // dump($value);
             // dump($phonesOnDbWithCode[$key]);
-            array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+            foreach ($phonesOnDbWithCode[$key] as $l => $val) {
+                array_push($newPhones,[$val->rut,$val->area,$val->number]);
+                // array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+            }
+           // array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
         }
         // dump('encontrados sin codigo');
         foreach ($compareWithoutCode as $key => $value) {
             // dump($key);
             // dump($value);
             // dump($phonesOnDb[$key]);
-            array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+            array_push($newPhones,[$phonesOnDb[$key]->rut,$phonesOnDb[$key]->area,$phonesOnDb[$key]->number]);
+            foreach ($compareWithoutCode[$key] as $l => $val) {
+                array_push($newPhones,[$val->rut,$val->area,$val->number]);
+                // array_push($newPhones,[$phonesOnDbWithCode[$key]->rut,$phonesOnDbWithCode[$key]->area,$phonesOnDbWithCode[$key]->number]);
+            }
         }
         Log::info('Coincidencias encontradas'.count($newPhones));
         Log::info('Finalizado');
@@ -114,7 +120,7 @@ class ProccessPhones implements ShouldQueue
         $this->phone->file_name = explode('/',$newPhonesFilePath)[0];
         $this->phone->new_black_list = count($newPhones);
         $this->phone->status = 'completed';
-        $this->phone->total_phones_processed = count($this->blackList);
+        $this->phone->total_phones_proccessed = count($this->blackList);
         $this->phone->save();
     }
 }

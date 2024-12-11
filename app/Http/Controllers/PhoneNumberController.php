@@ -27,7 +27,7 @@ class PhoneNumberController extends Controller
      */
     public function create()
     {
-        //
+        return view("phones-database.import");
     }
 
     /**
@@ -88,6 +88,7 @@ class PhoneNumberController extends Controller
                         
             Log::warning('Errores '. json_encode( $importer->errors()) );    
             
-            return response()->json(['success' => 'You have successfully upload file.']);
+            // return response()->json(['success' => 'You have successfully upload file.']);
+            return view("phones-database.index");
     }
 }
